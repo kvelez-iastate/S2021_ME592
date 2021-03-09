@@ -1,6 +1,6 @@
 import sys
-sys.path.append(r'C:\Users\ks71275\OneDrive-Deere&Co\OneDrive - Deere & Co\Documents\ME592_HW2\tsne_python\tsne_python')
-# import tsne
+sys.path.append(r'C:\Users\ks07142\OneDrive-Deere&Co\OneDrive - Deere & Co\Graduate School\Spring2021_ME592\HW2\tsne_python\tsne_python')
+import tsne
 import numpy as np
 import os
 
@@ -99,8 +99,8 @@ def list_folder_contents(path):
 ###############################################################################
 
 # user-defined inputs
-input_path = r'C:\Users\ks71275\OneDrive-Deere&Co\OneDrive - Deere & Co\Documents\ME592_HW2\DM\data\Input_geometry'
-result_path = r'C:\Users\ks71275\OneDrive-Deere&Co\OneDrive - Deere & Co\Documents\ME592_HW2\DM\data\final_geometry'
+input_path = r'C:\Users\ks07142\OneDrive-Deere&Co\OneDrive - Deere & Co\Graduate School\Spring2021_ME592\HW2\DM\data\Input_geometry'
+result_path = r'C:\Users\ks07142\OneDrive-Deere&Co\OneDrive - Deere & Co\Graduate School\Spring2021_ME592\HW2\DM\data\final_geometry'
 temperatures = [300, 350, 400, 450, 500]
 pressures = [76, 80, 84]
 
@@ -145,14 +145,14 @@ for filename in result_file_names:
 
 #%%
 # create a list of the ordered pairs at each time step that can be iterated on
-ordered_pairs = [ordered_pairs_80, ordered_pairs_140]
+ordered_pairs_80_140 = [ordered_pairs_80, ordered_pairs_140]
 
 # initialize counter varibles
 n = 0
 n_surfaces_per_geom = 3
 
 # for each ordered pair list
-for i, ordered_pair_list in enumerate(ordered_pairs):
+for i, ordered_pair_list in enumerate(ordered_pairs_80_140):
     
     # for each ordered pair
     for j, ordered_pair in enumerate(ordered_pair_list):
@@ -161,7 +161,7 @@ for i, ordered_pair_list in enumerate(ordered_pairs):
         for k, surf in enumerate(ordered_pair[0][0]):
             
             # whiten the surface
-            ordered_pairs[i][j][0][0][k] = whiten_surf(surf)
+            ordered_pairs_80_140[i][j][0][0][k] = whiten_surf(surf)
         
         # print the number of files that have been read (of 1294 files)
         n=n+1
@@ -176,31 +176,26 @@ for i, ordered_pair_list in enumerate(ordered_pairs):
 def create_vector_row(ordered_pair):
     
     # pull the required data from the ordered pair
-    result_surf_1 = ordered_pair[1][0]
-    result_surf_2 = ordered_pair[1][1]
-    result_surf_3 = ordered_pair[1][2]
-    temperature = np.ones((3,1))*ordered_pair[0][1]
-    pressure = np.ones((3,1))*ordered_pair[0][1]
-
-    # initialize an empty row array
-    row = []
+    result_surf_1 = np.concatenate((ordered_pair[1][0][0],ordered_pair[1][0][1],ordered_pair[1][0][2],[ordered_pair[0][1],ordered_pair[0][2]]))
+    result_surf_2 = np.concatenate((ordered_pair[1][1][0],ordered_pair[1][1][1],ordered_pair[1][1][2],[ordered_pair[0][1],ordered_pair[0][2]]))
+    result_surf_3 = np.concatenate((ordered_pair[1][2][0],ordered_pair[1][2][1],ordered_pair[1][2][2],[ordered_pair[0][1],ordered_pair[0][2]]))
 
     # create the row array
-    row = np.append(result_surf_1, result_surf_2, axis=1)
-    row = np.append(row, result_surf_3, axis = 1)
-    row = np.append(row, temperature, axis = 1)
-    row = np.append(row, pressure, axis = 1)
-    
+    row = [result_surf_1,result_surf_2,result_surf_3]
+   
     # return the row array
     return row
 
 # initialize an empty vector
 vector = []
 
-for i, ordered_pair in ordered_pairs_80:
+for ordered_pair in ordered_pairs_80:
     
     # create the row array
-    row = create_vector_row(ordered_pair)
+    row_array = create_vector_row(ordered_pair)
     
     # append the row array
-    vector.append(row)
+    vector = vector + row_array
+    
+# Attempt tsne....
+tsne_result = tsne.tsne(np.array(vector),1941,5)
